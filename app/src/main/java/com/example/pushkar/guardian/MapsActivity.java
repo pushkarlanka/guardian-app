@@ -2,10 +2,7 @@ package com.example.pushkar.guardian;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -13,6 +10,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -30,6 +31,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashMap;
+
+import models.User;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
@@ -37,7 +42,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
 
-    private Marker mLocationMarker;
+    private Marker mPushkarMarker;
+    private Marker mAbhinavMarker;
+
+    private String firebaseURL = "https://resplendent-inferno-4484.firebaseio.com";
+
+    private double distance = 0.1;
+
+
+    private HashMap<String, Object> mLocations = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +63,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+
+        setOnClickListeners();
 
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -73,6 +88,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         Log.d("testing: ", (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) + "");
+
+
 
     }
 
@@ -191,12 +208,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-        if(mLocationMarker != null) {
-            mLocationMarker.remove();
-        }
+//        if(mPushkarMarker != null) {
+//            mPushkarMarker.remove();
+//        }
+//
+//        mPushkarMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(location.getLatitude() + ", " + location.getLongitude()).draggable(true));
 
-        mLocationMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(location.getLatitude() + ", " + location.getLongitude()).draggable(true));
 
+
+        mLocations.put("001/latitude", location.getLatitude());
+        mLocations.put("002/latitude", location.getLatitude() + distance);
+        mLocations.put("001/longitude", location.getLongitude());
+        mLocations.put("002/longitude", location.getLongitude() + distance);
+
+        distance += 0.1;
+
+        Firebase usersRef = new Firebase(firebaseURL + "/users");
+
+        usersRef.updateChildren(mLocations);
     }
+
+
+    private void setOnClickListeners() {
+        Firebase usersRef = new Firebase(firebaseURL + "/users");
+
+        usersRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+                    User user = childSnapshot.getValue(User.class);
+                    Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
+
+                    LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
+
+                    if(childSnapshot.getKey().equals("001")) {
+                        if(mPushkarMarker != null) {
+                            mPushkarMarker.remove();
+                        }
+                        mPushkarMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Pushkar").draggable(true));
+                    } else {
+                        if(mAbhinavMarker != null) {
+                            mAbhinavMarker.remove();
+                        }
+                        mAbhinavMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Abhinav").draggable(true));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+
 
 }

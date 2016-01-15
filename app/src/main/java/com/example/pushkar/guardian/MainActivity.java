@@ -9,11 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
+import com.firebase.client.Firebase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Firebase.setAndroidContext(this);
 
         Button map_btn = (Button) findViewById(R.id.map_btn);
         map_btn.setOnClickListener(new View.OnClickListener() {

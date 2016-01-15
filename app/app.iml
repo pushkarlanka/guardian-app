@@ -128,7 +128,6 @@
     <orderEntry type="library" exported="" name="jackson-databind-2.2.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-identity-8.4.0" level="project" />
     <orderEntry type="library" exported="" name="firebase-client-android-2.5.0" level="project" />
-    <orderEntry type="library" exported="" name="1_firebase-client-android-2.5.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-vision-8.4.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-auth-8.4.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-wearable-8.4.0" level="project" />
