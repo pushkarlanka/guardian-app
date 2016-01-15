@@ -13,7 +13,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -22,14 +27,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
-    private Place destPlace;
 
-    private static final int REQUEST_CODE = 1;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+
+    private Marker mLocationMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +48,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
 
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -49,10 +59,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.d("LOOK: ", "Placeeeeee: " + place.getName());
-                destPlace = place;
 
-                LatLng dest = destPlace.getLatLng();
-                mMap.addMarker(new MarkerOptions().position(dest).title("Marker in " + destPlace.getName()).draggable(true));
+                LatLng dest = place.getLatLng();
+                mMap.addMarker(new MarkerOptions().position(dest).title("Marker in " + place.getName()).draggable(true));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(dest));
             }
 
@@ -65,58 +74,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Log.d("testing: ", (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) + "");
 
-
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//                Log.d("HEY", "PUSHKAR");
-//                // No explanation needed, we can request the permission.
-//                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
-//        }
-    }
-
-
-    private void enableMyLocation() {
-
-        try {
-            mMap.setMyLocationEnabled(true);
-            Log.d("req", "first");
-        } catch (SecurityException e) {}
-
-//        Location findme = mMap.getMyLocation();
-//        double latitude = findme.getLatitude();
-//        double longitude = findme.getLongitude();
-//        LatLng latLng = new LatLng(latitude, longitude);
-
-//        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-//        Criteria criteria = new Criteria();
-//        String provider = locationManager.getBestProvider(criteria, true);
-//
-//        Location myLocation = null;
-//        try {
-//            myLocation = locationManager.getLastKnownLocation(provider);
-//            Log.d("spongebob, ", "squarepants");
-//        } catch (SecurityException e) {
-//            Log.d("Error occurred: ", e.toString() );
-//            return;
-//        }
-//
-//        if (myLocation != null) {
-//            LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-//
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//            mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
-//            mMap.addMarker(new MarkerOptions().position(latLng).title("Your location!!!!!").draggable(true));
-//        }
-
-        repositionLocationButton();
-    }
-
-// position location button on bottom right
-    private void repositionLocationButton() {
-        View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        rlp.setMargins(0, 0, 30, 30);
     }
 
     /**
@@ -146,30 +103,100 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        Log.d("LOOK", "REACHED");
+    private void enableMyLocation() {
 
-        switch (requestCode) {
-            case REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        try {
+            mMap.setMyLocationEnabled(true);
+            Log.d("req", "first");
+        } catch (SecurityException e) {}
 
-                    try {
-                        mMap.setMyLocationEnabled(true);
-                        Log.d("req", "first");
-                    } catch (SecurityException e) {}
+        repositionLocationButton();
+//        Location findme = mMap.getMyLocation();
+//        double latitude = findme.getLatitude();
+//        double longitude = findme.getLongitude();
+//        LatLng latLng = new LatLng(latitude, longitude);
 
-                } else {
+//        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+//        Criteria criteria = new Criteria();
+//        String provider = locationManager.getBestProvider(criteria, true);
+//
+//        Location myLocation = null;
+//        try {
+//            myLocation = locationManager.getLastKnownLocation(provider);
+//            Log.d("spongebob, ", "squarepants");
+//        } catch (SecurityException e) {
+//            Log.d("Error occurred: ", e.toString() );
+//            return;
+//        }
+//
+//        if (myLocation != null) {
+//            LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+//
+//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//            mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+//            mMap.addMarker(new MarkerOptions().position(latLng).title("Your location!!!!!").draggable(true));
+//        }
 
-                    try {
-                        mMap.setMyLocationEnabled(true);
-                        Log.d("req", "second");
-                    } catch (SecurityException e) {}
-                }
-            }
-        }
     }
+
+    // position location button on bottom right
+    private void repositionLocationButton() {
+        View locationButton = ((View) findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        rlp.setMargins(0, 0, 30, 30);
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        // Disconnecting the client invalidates it.
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(1000); // Update location every second
+
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        } catch (SecurityException e) {}
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d("TAG: ", "GoogleApiClient connection has been suspend");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d("TAG: ", "GoogleApiClient connection has failed");
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        if(mLocationMarker != null) {
+            mLocationMarker.remove();
+        }
+
+        mLocationMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(location.getLatitude() + ", " + location.getLongitude()).draggable(true));
+
+    }
+
 }

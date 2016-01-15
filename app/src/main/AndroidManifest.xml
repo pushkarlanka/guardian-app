@@ -19,12 +19,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
-        <meta-data
-            android:name="com.parse.APPLICATION_ID"
-            android:value="wUD2gdUysEKGNzDXHYGiJSDtkSL5Y5hJVwGnkPOW" />
-        <meta-data
-            android:name="com.parse.CLIENT_KEY"
-            android:value="1zNQTLBOSaOtb8aETuea7cKBnhmKGCjR8AogceAF" />
+        <!--<meta-data-->
+            <!--android:name="com.parse.APPLICATION_ID"-->
+            <!--android:value="wUD2gdUysEKGNzDXHYGiJSDtkSL5Y5hJVwGnkPOW" />-->
+        <!--<meta-data-->
+            <!--android:name="com.parse.CLIENT_KEY"-->
+            <!--android:value="1zNQTLBOSaOtb8aETuea7cKBnhmKGCjR8AogceAF" />-->
 
         <activity android:name=".MainActivity" android:screenOrientation="portrait">
             <intent-filter>
