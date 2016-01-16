@@ -41,7 +41,8 @@ dependencies {
 //    compile 'com.parse:parse-android:1.+'
 //    compile fileTree(dir: 'src/main/libs', include: '*.jar')
 //    compile 'com.google.android.gms:play-services-ads:8.4.0'
-//    compile 'com.google.android.gms:play-services-identity:8.4.0'
+    compile 'com.google.android.gms:play-services-identity:8.4.0'
+    compile 'com.google.android.gms:play-services-auth:8.4.0'
 //    compile 'com.google.android.gms:play-services-gcm:8.4.0'
 }
 

@@ -1,17 +1,37 @@
 package com.example.pushkar.guardian;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.Firebase;
+import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
+import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.android.gms.common.AccountPicker;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
+
+import models.GetTokenTask;
 
 public class MainActivity extends AppCompatActivity {
+
+    static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
+
+    private String mEmail;
+    private Account mAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,87 +49,96 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
-//        com.google.android.gms.location.LocationListener locationListener = new com.google.android.gms.location.LocationListener() {
-//            @Override
-//            public void onLocationChanged(Location location) {
-//                textView.setText("Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
-//            }
-//        };
-//        LocationListener locationListener = new LocationListener() {
-//            @Override
-//            public void onLocationChanged(Location location) {
-//                textView.setText("Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
-//            }
-//
-//            @Override
-//            public void onStatusChanged(String provider, int status, Bundle extras) {
-//                Log.d("Latitude ", "status");
-//            }
-//
-//            @Override
-//            public void onProviderEnabled(String provider) {
-//                Log.d("Latitude ", "enabled");
-//            }
-//
-//            @Override
-//            public void onProviderDisabled(String provider) {
-//                Log.d("Latitude ", "disabled");
-//            }
-//        };
-//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//        try {
-////            mMap.setMyLocationEnabled(true);
-//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-//
-////            locationManager.re
-//
-//            Log.d("req", "first");
-//        } catch (SecurityException e) {}
+        Button userAuthButton = (Button) findViewById(R.id.user_auth_btn);
+        userAuthButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String[] accountTypes = new String[]{"com.google"};
+                Intent intent = AccountPicker.newChooseAccountIntent(null, null,
+                        accountTypes, false, null, null, null, null);
+                startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
+            }
+        });
 
 
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        // Connect the client.
-//        mGoogleApiClient.connect();
-//    }
-//
-//    @Override
-//    protected void onStop() {
-//        // Disconnecting the client invalidates it.
-//        mGoogleApiClient.disconnect();
-//        super.onStop();
-//    }
-//
-//    @Override
-//    public void onConnected(Bundle bundle) {
-//
-//        mLocationRequest = LocationRequest.create();
-//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//        mLocationRequest.setInterval(1000); // Update location every second
-//
-//        try {
-//            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-//        } catch (SecurityException e) {}
-//
-//    }
-//
-//    @Override
-//    public void onConnectionSuspended(int i) {
-//        Log.d("TAG: ", "GoogleApiClient connection has been suspend");
-//    }
-//
-//    @Override
-//    public void onConnectionFailed(ConnectionResult connectionResult) {
-//        Log.d("TAG: ", "GoogleApiClient connection has failed");
-//    }
-//
-//    @Override
-//    public void onLocationChanged(Location location) {
-//        mTextView.setText("Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_ACCOUNT) {
+            // Receiving a result from the AccountPicker
+            if (resultCode == RESULT_OK) {
+                mEmail = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                mAccount = new Account(AccountManager.KEY_ACCOUNT_NAME, AccountManager.KEY_ACCOUNT_TYPE);
+                // With the account name acquired, go get the auth token
+
+                TextView textView = (TextView) findViewById(R.id.user_email_text);
+                textView.setText(mEmail);
+
+                getTokenFromAccount();
+            } else if (resultCode == RESULT_CANCELED) {
+                // The account picker dialog closed without selecting an account.
+                // Notify users that they must pick an account to proceed.
+                Toast.makeText(this, "Fool, pick something", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR && resultCode == RESULT_OK) {
+            // Receiving a result that follows a GoogleAuthException, try auth again
+            getTokenFromAccount();
+        }
+    }
+
+    private void getTokenFromAccount() {
+        if(networkConnected()) {
+            String scope = "oauth2:https://www.googleapis.com/auth/plus.login";
+            new GetTokenTask(MainActivity.this, mAccount, scope).execute();
+        } else {
+            Toast.makeText(this, "Fool, you're not connected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
+    private boolean networkConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+
+
+
+    static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1001;
+
+    /**
+     * This method is a hook for background threads and async tasks that need to
+     * provide the user a response UI when an exception occurs.
+     */
+    public void handleException(final Exception e) {
+        // Because this call comes from the AsyncTask, we must ensure that the following
+        // code instead executes on the UI thread.
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (e instanceof GooglePlayServicesAvailabilityException) {
+                    // The Google Play services APK is old, disabled, or not present.
+                    // Show a dialog created by Google Play services that allows
+                    // the user to update the APK
+                    int statusCode = ((GooglePlayServicesAvailabilityException)e)
+                            .getConnectionStatusCode();
+                    Dialog dialog = GooglePlayServicesUtil.getErrorDialog(statusCode,
+                            MainActivity.this,
+                            REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
+                    dialog.show();
+                } else if (e instanceof UserRecoverableAuthException) {
+                    // Unable to authenticate, such as when the user has not yet granted
+                    // the app access to the account, but the user can fix this.
+                    // Forward the user to an activity in Google Play services.
+                    Intent intent = ((UserRecoverableAuthException)e).getIntent();
+                    startActivityForResult(intent,
+                            REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
+                }
+            }
+        });
+    }
 }

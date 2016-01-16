@@ -47,7 +47,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private String firebaseURL = "https://resplendent-inferno-4484.firebaseio.com";
 
-    private double distance = 0.1;
+    private double distance = 0.005;
+
+    private boolean mInitialFocus = false;
 
 
     private HashMap<String, Object> mLocations = new HashMap<>();
@@ -208,6 +210,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
+        if(!mInitialFocus) {
+            mInitialFocus = true;
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        }
+
 //        if(mPushkarMarker != null) {
 //            mPushkarMarker.remove();
 //        }
@@ -221,7 +228,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mLocations.put("001/longitude", location.getLongitude());
         mLocations.put("002/longitude", location.getLongitude() + distance);
 
-        distance += 0.1;
+        distance += 0.05;
 
         Firebase usersRef = new Firebase(firebaseURL + "/users");
 
@@ -245,12 +252,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if(mPushkarMarker != null) {
                             mPushkarMarker.remove();
                         }
-                        mPushkarMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Pushkar").draggable(true));
+                        mPushkarMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
                     } else {
                         if(mAbhinavMarker != null) {
                             mAbhinavMarker.remove();
                         }
-                        mAbhinavMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Abhinav").draggable(true));
+                        mAbhinavMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
                     }
                 }
             }
