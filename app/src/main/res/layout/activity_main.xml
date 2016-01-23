@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/user_auth_btn"
-        android:id="@+id/user_email_text"
+        android:id="@+id/user_text"
         android:layout_marginTop="15dp"
         android:text="hey there"/>
 

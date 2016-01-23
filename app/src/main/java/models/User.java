@@ -11,6 +11,10 @@ public class User {
     private Double latitude;
     private Double longitude;
 
+    private Boolean loggedIn;
+
+    private String email;
+
     public User() {}
 
 
@@ -46,5 +50,20 @@ public class User {
         this.longitude = longitude;
     }
 
+    public Boolean getLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(Boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
 }

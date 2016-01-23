@@ -246,14 +246,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     User user = childSnapshot.getValue(User.class);
                     Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
 
-                    LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
 
                     if(childSnapshot.getKey().equals("001")) {
+                        LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
                         if(mPushkarMarker != null) {
                             mPushkarMarker.remove();
                         }
                         mPushkarMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
-                    } else {
+                    } else if(childSnapshot.getKey().equals("002")) {
+                        LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
+
                         if(mAbhinavMarker != null) {
                             mAbhinavMarker.remove();
                         }
