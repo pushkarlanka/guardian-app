@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
     private String fireBaseURL = "https://resplendent-inferno-4484.firebaseio.com";
 
+    private String sharedPrefsUIDKey = "uid";
+    private String sharedPrefsDefVal = "false";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,10 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
-        startActivity(new Intent(MainActivity.this, MapsActivity.class));
+//        startActivity(new Intent(MainActivity.this, DrawerActivity.class));
 
         final Intent mapIntent = new Intent(getApplicationContext(), MapsActivity.class);
-        if(mSharedPrefs.getBoolean("loggedIn", false)) {
+        String uid = mSharedPrefs.getString(sharedPrefsUIDKey, sharedPrefsDefVal);
+        if(!uid.equals(sharedPrefsDefVal)) {
+            ((AppBase) getApplicationContext()).setUserID(uid);
             startActivity(mapIntent);
         }
 
@@ -138,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("ID: ", appBase.getUserID());
 
                 mSharedPrefs.edit().putBoolean("loggedIn", true).apply();
+                mSharedPrefs.edit().putString("uid", authData.getUid());
             }
             @Override
             public void onAuthenticationError(FirebaseError firebaseError) {

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -42,8 +44,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
 
-    private Marker mPushkarMarker;
-    private Marker mAbhinavMarker;
+//    private Marker myUserMarker;
+//    private Marker mAbhinavMarker;
 
     private String firebaseURL = "https://resplendent-inferno-4484.firebaseio.com";
 
@@ -51,8 +53,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private boolean mInitialFocus = false;
 
+    private String mUID;
 
     private HashMap<String, Object> mLocations = new HashMap<>();
+
+    private HashMap<String, Marker> mMarkers = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mUID = ((AppBase) getApplication()).getUserID();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
@@ -215,18 +222,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         }
 
-//        if(mPushkarMarker != null) {
-//            mPushkarMarker.remove();
+//        if(myUserMarker != null) {
+//            myUserMarker.remove();
 //        }
 //
-//        mPushkarMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(location.getLatitude() + ", " + location.getLongitude()).draggable(true));
+//        myUserMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(location.getLatitude() + ", " + location.getLongitude()).draggable(true));
 
 
 
-        mLocations.put("001/latitude", location.getLatitude());
-        mLocations.put("002/latitude", location.getLatitude() + distance);
-        mLocations.put("001/longitude", location.getLongitude());
-        mLocations.put("002/longitude", location.getLongitude() + distance);
+        mLocations.put(mUID +"/latitude", location.getLatitude());
+        mLocations.put("dummy/latitude", location.getLatitude() + distance);
+        mLocations.put(mUID + "/longitude", location.getLongitude());
+        mLocations.put("dummy/longitude", location.getLongitude() + distance);
 
         distance += 0.05;
 
@@ -239,29 +246,70 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void setOnClickListeners() {
         Firebase usersRef = new Firebase(firebaseURL + "/users");
 
-        usersRef.addValueEventListener(new ValueEventListener() {
+//        usersRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for(DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+//                    User user = childSnapshot.getValue(User.class);
+//                    Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
+//
+//                    if(childSnapshot.getKey().equals(mUID)) {
+//                        LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
+//                        if(myUserMarker != null) {
+//                            myUserMarker.remove();
+//                        }
+//                        myUserMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
+//                    } else if(childSnapshot.getKey().equals("dummy")) {
+//                        LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
+//
+//                        if(mAbhinavMarker != null) {
+//                            mAbhinavMarker.remove();
+//                        }
+//                        mAbhinavMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
+
+        usersRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
-                    User user = childSnapshot.getValue(User.class);
-                    Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+            }
 
-                    if(childSnapshot.getKey().equals("001")) {
-                        LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
-                        if(mPushkarMarker != null) {
-                            mPushkarMarker.remove();
-                        }
-                        mPushkarMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
-                    } else if(childSnapshot.getKey().equals("002")) {
-                        LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildKey) {
 
-                        if(mAbhinavMarker != null) {
-                            mAbhinavMarker.remove();
-                        }
-                        mAbhinavMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
-                    }
+                User user = dataSnapshot.getValue(User.class);
+                Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
+
+                LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
+                String key = dataSnapshot.getKey();     // key is the user's UID
+
+                if(mMarkers.get(key) != null) {
+                    mMarkers.get(key).remove();
                 }
+
+                if(!key.equals(mUID)) {
+                    mMarkers.put(key, (mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_person_marker)).position(latLng).title(user.getName()).draggable(true))));
+                } else {
+                    mMarkers.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
