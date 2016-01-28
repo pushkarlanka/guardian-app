@@ -63,6 +63,8 @@ public class DrawerActivity extends AppCompatActivity
 
     // OTHER VARIABLES
     private SharedPreferences mSharedPrefs;
+    private ChildEventListener mChildEventListener;
+    private Firebase mUsersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,8 @@ public class DrawerActivity extends AppCompatActivity
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(DrawerActivity.this);
         mUID = mSharedPrefs.getString("uid", "false");
+
+        Log.d("oncreate:", "ONCREATE");
 
         setNavDrawer(toolbar);
         setMap();
@@ -144,10 +148,12 @@ public class DrawerActivity extends AppCompatActivity
 
             mSharedPrefs.edit().clear().apply();
 
-            Firebase userRef = new Firebase(firebaseURL).child("users").child(mUID).child("loggedIn");
-            userRef.setValue(false);
+            Firebase ref = new Firebase(firebaseURL).child("users").child(mUID).child("loggedIn");
+            ref.setValue(false);
 
             // MAYBE I SHOULD ALSO DELETE USER ID IN APPBASE?????
+
+            mUsersRef.removeEventListener(mChildEventListener);
 
             startActivity(new Intent(DrawerActivity.this, MainActivity.class));
         }
@@ -160,8 +166,11 @@ public class DrawerActivity extends AppCompatActivity
 
 
 
-
     // MAP STUFF BELOW
+
+
+
+
     // mimics old onCreate
     private void setMap() {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -217,6 +226,7 @@ public class DrawerActivity extends AppCompatActivity
 
         mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
 
+        Log.d("onMap", "ON MAP");
     }
 
     private void enableMyLocation() {
@@ -251,8 +261,15 @@ public class DrawerActivity extends AppCompatActivity
 //    protected void onStop() {
 //        // Disconnecting the client invalidates it.
 //        mGoogleApiClient.disconnect();
+//        Log.d("onStop", "ON STOP");
 //        super.onStop();
 //    }
+
+    @Override
+    protected void onPause() {
+        Log.d("onPause", "ON PAUSE");
+        super.onPause();
+    }
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -299,17 +316,16 @@ public class DrawerActivity extends AppCompatActivity
 
 
     private void setOnClickListeners() {
-        Firebase usersRef = new Firebase(firebaseURL + "/users");
+        mUsersRef = new Firebase(firebaseURL + "/users");
 
-        usersRef.addChildEventListener(new ChildEventListener() {
+        mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildKey) {
-
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 User user = dataSnapshot.getValue(User.class);
                 Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
 
@@ -329,18 +345,17 @@ public class DrawerActivity extends AppCompatActivity
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
             }
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
             }
-        });
+        };
+
+        mUsersRef.addChildEventListener(mChildEventListener);
     }
 }
