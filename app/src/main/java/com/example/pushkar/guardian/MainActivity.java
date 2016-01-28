@@ -51,22 +51,26 @@ public class MainActivity extends AppCompatActivity {
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
-//        startActivity(new Intent(MainActivity.this, DrawerActivity.class));
+        final Intent mapIntent = new Intent(MainActivity.this, DrawerActivity.class);
+        String uid = mSharedPrefs.getString(sharedPrefsUIDKey, sharedPrefsDefVal);
+        Log.d("shared prefs loggedIn: ", mSharedPrefs.getBoolean("loggedIn", false) + "");
+        Log.d("shared prefs UID: ", uid);
+        Log.d("shared prefs NAME: ", mSharedPrefs.getString("name", "false"));
+        Log.d("shared prefs EMAIL: ", mSharedPrefs.getString("email", "false"));
 
-        final Intent mapIntent = new Intent(getApplicationContext(), MapsActivity.class);
-//        String uid = mSharedPrefs.getString(sharedPrefsUIDKey, sharedPrefsDefVal);
-//        if(!uid.equals(sharedPrefsDefVal)) {
-//            ((AppBase) getApplicationContext()).setUserID(uid);
-//            startActivity(mapIntent);
-//        }
+        if(!uid.equals(sharedPrefsDefVal)) {
+//            AppBase appBase = ((AppBase) getApplicationContext());
+//            appBase.setUserID(uid);
+            startActivity(mapIntent);
+        }
 
-        Button map_btn = (Button) findViewById(R.id.map_btn);
-        map_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(mapIntent);
-            }
-        });
+//        Button map_btn = (Button) findViewById(R.id.map_btn);
+//        map_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(mapIntent);
+//            }
+//        });
 
         Button userAuthButton = (Button) findViewById(R.id.user_auth_btn);
         userAuthButton.setOnClickListener(new View.OnClickListener() {
@@ -137,15 +141,16 @@ public class MainActivity extends AppCompatActivity {
 
                 Toast.makeText(MainActivity.this, "Authenticated!!!", Toast.LENGTH_SHORT).show();
 
-                AppBase appBase = (AppBase) getApplicationContext();
-                appBase.setUserID(authData.getUid());
-                appBase.setUserName(userDetailsMap.get("name").toString());
-                appBase.setUserEmail(userDetailsMap.get("email").toString());
+//                AppBase appBase = (AppBase) getApplicationContext();
+//                appBase.setUserID(authData.getUid());
+//                appBase.setUserName(userDetailsMap.get("name").toString());
+//                appBase.setUserEmail(userDetailsMap.get("email").toString());
 
-                mSharedPrefs.edit().putBoolean("loggedIn", true).apply();
-                mSharedPrefs.edit().putString("uid", authData.getUid());
+                mSharedPrefs.edit().putString(sharedPrefsUIDKey, authData.getUid()).putString("name", userDetailsMap.get("name").toString()).
+                        putString("email", userDetailsMap.get("email").toString()).apply();
 
                 startActivity(new Intent(MainActivity.this, DrawerActivity.class));
+//                startActivity(new Intent(MainActivity.this, MapsActivity.class));
 
             }
             @Override

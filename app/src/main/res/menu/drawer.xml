@@ -3,4 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
+
+    <item
+        android:id="@+id/display_map_btn"
+        android:icon="@android:drawable/ic_dialog_map"
+        android:title="MAP"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/display_list_btn"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="LIST"
+        app:showAsAction="ifRoom"/>
+
+
 </menu>
