@@ -54,11 +54,11 @@ public class MainActivity extends AppCompatActivity {
 //        startActivity(new Intent(MainActivity.this, DrawerActivity.class));
 
         final Intent mapIntent = new Intent(getApplicationContext(), MapsActivity.class);
-        String uid = mSharedPrefs.getString(sharedPrefsUIDKey, sharedPrefsDefVal);
-        if(!uid.equals(sharedPrefsDefVal)) {
-            ((AppBase) getApplicationContext()).setUserID(uid);
-            startActivity(mapIntent);
-        }
+//        String uid = mSharedPrefs.getString(sharedPrefsUIDKey, sharedPrefsDefVal);
+//        if(!uid.equals(sharedPrefsDefVal)) {
+//            ((AppBase) getApplicationContext()).setUserID(uid);
+//            startActivity(mapIntent);
+//        }
 
         Button map_btn = (Button) findViewById(R.id.map_btn);
         map_btn.setOnClickListener(new View.OnClickListener() {
@@ -125,25 +125,28 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d("USER DETAILS: ", authData.getProviderData().get("email") + "");
 //                Log.d("USER DETAILS: ", authData.getProviderData().get("profileImageURL") + "");
 
-                HashMap<String, Object> userMap = new HashMap<>();
+                HashMap<String, Object> userDetailsMap = new HashMap<>();
                 if(authData.getProviderData().containsKey("displayName")) {
-                    userMap.put("name", authData.getProviderData().get("displayName"));
-                    userMap.put("loggedIn", true);
-                    userMap.put("email", mEmail);
+                    userDetailsMap.put("name", authData.getProviderData().get("displayName"));
+                    userDetailsMap.put("loggedIn", true);
+                    userDetailsMap.put("email", mEmail);
                 }
 
                 Firebase usersRef = new Firebase(fireBaseURL).child("users").child(authData.getUid());
-                usersRef.updateChildren(userMap);
+                usersRef.updateChildren(userDetailsMap);
 
                 Toast.makeText(MainActivity.this, "Authenticated!!!", Toast.LENGTH_SHORT).show();
 
                 AppBase appBase = (AppBase) getApplicationContext();
                 appBase.setUserID(authData.getUid());
-
-                Log.d("ID: ", appBase.getUserID());
+                appBase.setUserName(userDetailsMap.get("name").toString());
+                appBase.setUserEmail(userDetailsMap.get("email").toString());
 
                 mSharedPrefs.edit().putBoolean("loggedIn", true).apply();
                 mSharedPrefs.edit().putString("uid", authData.getUid());
+
+                startActivity(new Intent(MainActivity.this, DrawerActivity.class));
+
             }
             @Override
             public void onAuthenticationError(FirebaseError firebaseError) {

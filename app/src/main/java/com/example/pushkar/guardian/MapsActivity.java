@@ -3,6 +3,7 @@ package com.example.pushkar.guardian;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -14,7 +15,6 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -40,23 +40,13 @@ import models.User;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
-
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-
-//    private Marker myUserMarker;
-//    private Marker mAbhinavMarker;
-
     private String firebaseURL = "https://resplendent-inferno-4484.firebaseio.com";
-
     private double distance = 0.005;
-
     private boolean mInitialFocus = false;
-
     private String mUID;
-
     private HashMap<String, Object> mLocations = new HashMap<>();
-
     private HashMap<String, Marker> mMarkers = new HashMap<>();
 
     @Override
@@ -96,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        Log.d("testing: ", (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) + "");
+//        Log.d("testing: ", (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) + "");
 
 
 
@@ -118,11 +108,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // disable toolbar buttons
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney").draggable(true));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
         enableMyLocation();
 
         mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
@@ -137,31 +122,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (SecurityException e) {}
 
         repositionLocationButton();
-//        Location findme = mMap.getMyLocation();
-//        double latitude = findme.getLatitude();
-//        double longitude = findme.getLongitude();
-//        LatLng latLng = new LatLng(latitude, longitude);
-
-//        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-//        Criteria criteria = new Criteria();
-//        String provider = locationManager.getBestProvider(criteria, true);
-//
-//        Location myLocation = null;
-//        try {
-//            myLocation = locationManager.getLastKnownLocation(provider);
-//            Log.d("spongebob, ", "squarepants");
-//        } catch (SecurityException e) {
-//            Log.d("Error occurred: ", e.toString() );
-//            return;
-//        }
-//
-//        if (myLocation != null) {
-//            LatLng latLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-//
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//            mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
-//            mMap.addMarker(new MarkerOptions().position(latLng).title("Your location!!!!!").draggable(true));
-//        }
 
     }
 
@@ -222,14 +182,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         }
 
-//        if(myUserMarker != null) {
-//            myUserMarker.remove();
-//        }
-//
-//        myUserMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(location.getLatitude() + ", " + location.getLongitude()).draggable(true));
-
-
-
         mLocations.put(mUID +"/latitude", location.getLatitude());
         mLocations.put("dummy/latitude", location.getLatitude() + distance);
         mLocations.put(mUID + "/longitude", location.getLongitude());
@@ -245,36 +197,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void setOnClickListeners() {
         Firebase usersRef = new Firebase(firebaseURL + "/users");
-
-//        usersRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for(DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
-//                    User user = childSnapshot.getValue(User.class);
-//                    Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
-//
-//                    if(childSnapshot.getKey().equals(mUID)) {
-//                        LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
-//                        if(myUserMarker != null) {
-//                            myUserMarker.remove();
-//                        }
-//                        myUserMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
-//                    } else if(childSnapshot.getKey().equals("dummy")) {
-//                        LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
-//
-//                        if(mAbhinavMarker != null) {
-//                            mAbhinavMarker.remove();
-//                        }
-//                        mAbhinavMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true));
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
 
         usersRef.addChildEventListener(new ChildEventListener() {
             @Override

@@ -15,10 +15,11 @@
         android:id="@+id/card_view"
         android:layout_gravity="center"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_width="350dp"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
         card_view:cardCornerRadius="4dp">
+        <!-- make CardView layout_height="wrap_content" -->
 
         <fragment
             android:id="@+id/place_autocomplete_fragment"
