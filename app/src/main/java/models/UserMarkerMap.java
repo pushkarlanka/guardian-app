@@ -26,7 +26,7 @@ public class UserMarkerMap {
         return mUsersMarkers.get(s);
     }
 
-    public String getUser(Marker m) {
+    public String getUserUID(Marker m) {
         return mMarkersUsers.get(m);
     }
 

@@ -5,10 +5,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -43,8 +40,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 
@@ -404,12 +399,18 @@ public class DrawerActivity extends AppCompatActivity
     @Override
     public boolean onMarkerClick(final Marker marker) {
 
-        Log.d("Clicked UID: ", mUserMarkerMap.getUser(marker));
+        Log.d("Clicked UID: ", mUserMarkerMap.getUserUID(marker));
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 //        builder.
 
+        Bundle bundle = new Bundle();
+        String uid = mUserMarkerMap.getUserUID(marker);
+        bundle.putParcelable("user", mAllUsers.get(uid));
+
         DialogFragment markerDialog = new MarkerDialogFragment();
+        markerDialog.setArguments(bundle);
+
         markerDialog.show(getSupportFragmentManager(), "missiles");
 
         return true;
