@@ -47,9 +47,11 @@ import org.w3c.dom.Text;
 import java.util.HashMap;
 
 import models.User;
+import models.UserMarkerMap;
 
 public class DrawerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMarkerClickListener {
 
     // MAP VARIABLES
     private GoogleMap mMap;
@@ -59,7 +61,10 @@ public class DrawerActivity extends AppCompatActivity
     private boolean mInitialFocus = false;
     private String mUID;
     private HashMap<String, Object> mLocations = new HashMap<>();
-    private HashMap<String, Marker> mMarkers = new HashMap<>();
+//    private HashMap<String, Marker> mMarkers = new HashMap<>();
+
+    private UserMarkerMap mUserMarkerMap = new UserMarkerMap();
+    private HashMap<String, User> mAllUsers = new HashMap<>();
 
     // OTHER VARIABLES
     private SharedPreferences mSharedPrefs;
@@ -226,6 +231,8 @@ public class DrawerActivity extends AppCompatActivity
 
         mMap.animateCamera(CameraUpdateFactory.zoomTo(16));
 
+        mMap.setOnMarkerClickListener(this);
+
         Log.d("onMap", "ON MAP");
     }
 
@@ -305,9 +312,17 @@ public class DrawerActivity extends AppCompatActivity
         }
 
         mLocations.put(mUID +"/latitude", location.getLatitude());
-        mLocations.put("dummy/latitude", location.getLatitude() + 0.0005);
         mLocations.put(mUID + "/longitude", location.getLongitude());
+        mLocations.put("dummy/latitude", location.getLatitude() + 0.0005);
         mLocations.put("dummy/longitude", location.getLongitude() + 0.0005);
+        mLocations.put("random2/latitude", location.getLatitude() - 0.0015);
+        mLocations.put("random2/longitude", location.getLongitude() - 0.0015);
+        mLocations.put("random3/latitude", location.getLatitude() + 0.0025);
+        mLocations.put("random3/longitude", location.getLongitude() - 0.0025);
+        mLocations.put("random4/latitude", location.getLatitude() - 0.0035);
+        mLocations.put("random4/longitude", location.getLongitude() + 0.0035);
+        mLocations.put("random5/latitude", location.getLatitude() - 0.0045);
+        mLocations.put("random5/longitude", location.getLongitude() - 0.0045);
 
         Firebase usersRef = new Firebase(firebaseURL + "/users");
 
@@ -321,7 +336,21 @@ public class DrawerActivity extends AppCompatActivity
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("CHILD ADDED", " ADDED");
 
+                User user = dataSnapshot.getValue(User.class);
+                Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
+
+                LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
+                String key = dataSnapshot.getKey();     // key is the user's UID
+
+                if(!key.equals(mUID)) {
+                    mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_person_marker)).position(latLng).title(user.getName()).draggable(true))));
+                } else {
+                    mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
+                }
+
+                mAllUsers.put(key, user);
             }
 
             @Override
@@ -331,20 +360,29 @@ public class DrawerActivity extends AppCompatActivity
 
                 LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
                 String key = dataSnapshot.getKey();     // key is the user's UID
-
-                if(mMarkers.get(key) != null) {
-                    mMarkers.get(key).remove();
-                }
-
-                if(!key.equals(mUID)) {
-                    mMarkers.put(key, (mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_person_marker)).position(latLng).title(user.getName()).draggable(true))));
+//                if(mMarkers.get(key) != null) {
+//                    mMarkers.get(key).setPosition(latLng);
+//                } else if(!key.equals(mUID)) {
+//                    mMarkers.put(key, (mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_person_marker)).position(latLng).title(user.getName()).draggable(true))));
+//                } else {
+//                    mMarkers.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
+//                }
+                if(mUserMarkerMap.getMarker(key) != null) {
+                    mUserMarkerMap.getMarker(key).setPosition(latLng);
+                } else if(!key.equals(mUID)) {
+                    mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_person_marker)).position(latLng).title(user.getName()).draggable(true))));
                 } else {
-                    mMarkers.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
+                    mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
                 }
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String key = dataSnapshot.getKey();
+
+                mUserMarkerMap.getMarker(key).remove();
+                mUserMarkerMap.remove(key);
+                mAllUsers.remove(key);
             }
 
             @Override
@@ -357,5 +395,13 @@ public class DrawerActivity extends AppCompatActivity
         };
 
         mUsersRef.addChildEventListener(mChildEventListener);
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+        Log.d("Clicked UID: ", mUserMarkerMap.getUser(marker));
+
+        return true;
     }
 }

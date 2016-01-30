@@ -14,8 +14,9 @@ public class User {
 
     private String email;
 
-    public User() {}
+    private Integer starCount;
 
+    public User() {}
 
     public String getName() {
         return name;
@@ -55,6 +56,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Integer getStarCount() {
+        return starCount;
+    }
+
+    public void setStarCount(Integer starCount) {
+        this.starCount = starCount;
     }
 
 }
