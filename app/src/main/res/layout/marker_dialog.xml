@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="20dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/dialog_user_name"
+            android:text="Name: John Doe"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/dialog_stars"
+            android:layout_below="@+id/dialog_user_name"
+            android:text="Stars: 50"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"/>
+    
+        <!--<View-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="#FF3A8776"/>-->
+
+    <!--android:paddingStart="20dp"-->
+    <!--android:paddingEnd="20dp"-->
+
+</LinearLayout>

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -374,6 +376,8 @@ public class DrawerActivity extends AppCompatActivity
                 } else {
                     mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
                 }
+
+                mAllUsers.put(key, user);
             }
 
             @Override
@@ -401,6 +405,12 @@ public class DrawerActivity extends AppCompatActivity
     public boolean onMarkerClick(final Marker marker) {
 
         Log.d("Clicked UID: ", mUserMarkerMap.getUser(marker));
+
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.
+
+        DialogFragment markerDialog = new MarkerDialogFragment();
+        markerDialog.show(getSupportFragmentManager(), "missiles");
 
         return true;
     }
