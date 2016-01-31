@@ -6,6 +6,9 @@ import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -41,9 +44,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import models.User;
 import models.UserMarkerMap;
@@ -89,6 +93,8 @@ public class DrawerActivity extends AppCompatActivity
 
         setNavDrawer(toolbar);
         setMap();
+//        setRecyclerList();
+
     }
 
     private void setNavDrawer(Toolbar toolbar) {
@@ -133,14 +139,17 @@ public class DrawerActivity extends AppCompatActivity
         int id = item.getItemId();
 
         RelativeLayout mapsLayout = (RelativeLayout) findViewById(R.id.maps_layout);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         } else if(id == R.id.display_map_btn) {
             mapsLayout.setVisibility(View.VISIBLE);
-        }else if(id == R.id.display_list_btn) {
+            recyclerView.setVisibility(View.GONE);
+        } else if(id == R.id.display_list_btn) {
             mapsLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
         }
 
         return super.onOptionsItemSelected(item);
@@ -432,14 +441,11 @@ public class DrawerActivity extends AppCompatActivity
 
         String markerUID = mUserMarkerMap.getUserUID(marker);
         User markerUser = mAllUsers.get(markerUID);
-        User myUser = mAllUsers.get(mUID);
 
         Bundle bundle = new Bundle();
         bundle.putParcelable("user", markerUser);
 
-        double distance = getDistance(myUser.getLatitude(), myUser.getLongitude(), markerUser.getLatitude(), markerUser.getLongitude());
-        Log.d("LOOK DISTANCE: ", distance + "");
-        String distanceStr = new DecimalFormat("#.##").format(distance);
+        String distanceStr = getDistance(markerUser);
         bundle.putString("distance", distanceStr);
 
         DialogFragment markerDialog = new MarkerDialogFragment();
@@ -447,15 +453,33 @@ public class DrawerActivity extends AppCompatActivity
 
         markerDialog.show(getSupportFragmentManager(), "missiles");
 
+        setRecyclerList();
+
         return true;
     }
 
-    private double getDistance(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
+    public String getDistance(User otherUser) {
+
+        User myUser = mAllUsers.get(mUID);
 
         float[] results = new float[2];
-        Location.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude, results);
+        Location.distanceBetween(myUser.getLatitude(), myUser.getLongitude(), otherUser.getLatitude(), otherUser.getLongitude(), results);
 
-        return (((double) results[0]) * METERS_TO_MILES);
+        double distance = (((double) results[0]) * METERS_TO_MILES);
+        Log.d("LOOK DISTANCE", distance + "");
+        String distanceStr = new DecimalFormat("#.##").format(distance);
+
+        return distanceStr;
+    }
+
+    private void setRecyclerList() {
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        // use a linear layout manager
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        RecyclerView.Adapter adapter = new UserListAdapter(new ArrayList<User>(mAllUsers.values()), DrawerActivity.this);
+        recyclerView.setAdapter(adapter);
     }
 
 }
