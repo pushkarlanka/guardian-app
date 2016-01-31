@@ -23,13 +23,19 @@ public class MarkerDialogFragment extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.marker_dialog, null);
 
-        User user = getArguments().getParcelable("user");
+        Bundle bundle = getArguments();
+
+        User user = bundle.getParcelable("user");
+        String distance = bundle.getString("distance");
 
         TextView dialogUserName = (TextView) view.findViewById(R.id.dialog_user_name);
         dialogUserName.setText(user.getName());
 
         TextView dialogStars = (TextView) view.findViewById(R.id.dialog_stars);
         dialogStars.setText(String.valueOf(user.getStars()));
+
+        TextView dialogDistance = (TextView) view.findViewById(R.id.dialog_distance);
+        dialogDistance.setText(distance + " miles away");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view)

@@ -41,6 +41,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import models.User;
@@ -67,6 +69,10 @@ public class DrawerActivity extends AppCompatActivity
     private SharedPreferences mSharedPrefs;
     private ChildEventListener mChildEventListener;
     private Firebase mUsersRef;
+
+    private Location mMyLocation;
+
+    static final double METERS_TO_MILES = 0.000621371;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,9 +132,15 @@ public class DrawerActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        RelativeLayout mapsLayout = (RelativeLayout) findViewById(R.id.maps_layout);
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if(id == R.id.display_map_btn) {
+            mapsLayout.setVisibility(View.VISIBLE);
+        }else if(id == R.id.display_list_btn) {
+            mapsLayout.setVisibility(View.GONE);
         }
 
         return super.onOptionsItemSelected(item);
@@ -197,6 +209,18 @@ public class DrawerActivity extends AppCompatActivity
                 LatLng dest = place.getLatLng();
                 mMap.addMarker(new MarkerOptions().position(dest).title("Marker in " + place.getName()).draggable(true));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(dest));
+
+                float[] results = new float[2];
+                Location.distanceBetween(mMyLocation.getLatitude(), mMyLocation.getLongitude(), dest.latitude, dest.longitude, results);
+
+
+                Log.d("My location", mMyLocation.getLatitude() + ", " + mMyLocation.getLongitude());
+                Log.d(place.getName().toString(), dest.latitude + ", " + dest.longitude);
+
+                Log.d("Distance to " + place.getName(), results[0] + "");
+                double distanceMiles = ((double) results[0]) * METERS_TO_MILES;
+                Log.d("Distance to " + place.getName() + "(miles)", distanceMiles + "");
+
             }
 
             @Override
@@ -301,6 +325,11 @@ public class DrawerActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
 
+
+        mMyLocation = location;
+
+//        location.distanceTo(new Location());
+
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
         if(!mInitialFocus) {
@@ -401,12 +430,17 @@ public class DrawerActivity extends AppCompatActivity
 
         Log.d("Clicked UID: ", mUserMarkerMap.getUserUID(marker));
 
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.
+        String markerUID = mUserMarkerMap.getUserUID(marker);
+        User markerUser = mAllUsers.get(markerUID);
+        User myUser = mAllUsers.get(mUID);
 
         Bundle bundle = new Bundle();
-        String uid = mUserMarkerMap.getUserUID(marker);
-        bundle.putParcelable("user", mAllUsers.get(uid));
+        bundle.putParcelable("user", markerUser);
+
+        double distance = getDistance(myUser.getLatitude(), myUser.getLongitude(), markerUser.getLatitude(), markerUser.getLongitude());
+        Log.d("LOOK DISTANCE: ", distance + "");
+        String distanceStr = new DecimalFormat("#.##").format(distance);
+        bundle.putString("distance", distanceStr);
 
         DialogFragment markerDialog = new MarkerDialogFragment();
         markerDialog.setArguments(bundle);
@@ -415,4 +449,13 @@ public class DrawerActivity extends AppCompatActivity
 
         return true;
     }
+
+    private double getDistance(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
+
+        float[] results = new float[2];
+        Location.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude, results);
+
+        return (((double) results[0]) * METERS_TO_MILES);
+    }
+
 }
