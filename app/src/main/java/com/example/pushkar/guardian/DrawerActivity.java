@@ -3,13 +3,12 @@ package com.example.pushkar.guardian;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.UiThread;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -20,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -101,7 +101,6 @@ public class DrawerActivity extends AppCompatActivity
         setNavDrawer(toolbar);
         setMap();
         setRecyclerList();
-
     }
 
     private void setNavDrawer(Toolbar toolbar) {
@@ -237,6 +236,20 @@ public class DrawerActivity extends AppCompatActivity
                 Log.d("LOOK: ", "An error occurred: " + status);
             }
         });
+
+        setEmergencyCallButton();
+    }
+
+    private void setEmergencyCallButton() {
+        final String phoneNumber = "111";
+
+        Button button = (Button) findViewById(R.id.police_call_btn);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber)));
+            }
+        });
     }
 
 
@@ -252,6 +265,7 @@ public class DrawerActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setPadding(0,0,0,100);
         mMap.getUiSettings().setCompassEnabled(false);
         // disable toolbar buttons
         mMap.getUiSettings().setMapToolbarEnabled(false);
@@ -445,21 +459,24 @@ public class DrawerActivity extends AppCompatActivity
     @Override
     public boolean onMarkerClick(final Marker marker) {
 
-        Log.d("Clicked UID: ", mUserMarkerMap.getUserUID(marker));
-
         String markerUID = mUserMarkerMap.getUserUID(marker);
-        User markerUser = mAllUsers.get(markerUID);
 
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("user", markerUser);
+        if(markerUID != null) {
+            Log.d("Clicked UID: ", markerUID);
 
-        String distanceStr = getDistance(markerUser);
-        bundle.putString("distance", distanceStr);
+            User markerUser = mAllUsers.get(markerUID);
 
-        DialogFragment markerDialog = new MarkerDialogFragment();
-        markerDialog.setArguments(bundle);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("user", markerUser);
 
-        markerDialog.show(getSupportFragmentManager(), "missiles");
+            String distanceStr = getDistance(markerUser);
+            bundle.putString("distance", distanceStr);
+
+            DialogFragment markerDialog = new MarkerDialogFragment();
+            markerDialog.setArguments(bundle);
+
+            markerDialog.show(getSupportFragmentManager(), "missiles");
+        }
 
         return true;
     }
