@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.firebase.client.AuthData;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        Button userAuthButton = (Button) findViewById(R.id.user_auth_btn);
+        LinearLayout userAuthButton = (LinearLayout) findViewById(R.id.user_auth_btn);
         userAuthButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
