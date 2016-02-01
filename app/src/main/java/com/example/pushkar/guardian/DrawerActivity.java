@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.UiThread;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +45,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,8 +75,9 @@ public class DrawerActivity extends AppCompatActivity
     private SharedPreferences mSharedPrefs;
     private ChildEventListener mChildEventListener;
     private Firebase mUsersRef;
-
-    private Location mMyLocation;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private boolean allChildrenAdded = false;
 
     static final double METERS_TO_MILES = 0.000621371;
 
@@ -93,7 +96,7 @@ public class DrawerActivity extends AppCompatActivity
 
         setNavDrawer(toolbar);
         setMap();
-//        setRecyclerList();
+        setRecyclerList();
 
     }
 
@@ -212,29 +215,15 @@ public class DrawerActivity extends AppCompatActivity
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                // TODO: Get info about the selected place.
                 Log.d("LOOK: ", "Placeeeeee: " + place.getName());
 
                 LatLng dest = place.getLatLng();
                 mMap.addMarker(new MarkerOptions().position(dest).title("Marker in " + place.getName()).draggable(true));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(dest));
-
-                float[] results = new float[2];
-                Location.distanceBetween(mMyLocation.getLatitude(), mMyLocation.getLongitude(), dest.latitude, dest.longitude, results);
-
-
-                Log.d("My location", mMyLocation.getLatitude() + ", " + mMyLocation.getLongitude());
-                Log.d(place.getName().toString(), dest.latitude + ", " + dest.longitude);
-
-                Log.d("Distance to " + place.getName(), results[0] + "");
-                double distanceMiles = ((double) results[0]) * METERS_TO_MILES;
-                Log.d("Distance to " + place.getName() + "(miles)", distanceMiles + "");
-
             }
 
             @Override
             public void onError(Status status) {
-                // TODO: Handle the error.
                 Log.d("LOOK: ", "An error occurred: " + status);
             }
         });
@@ -334,11 +323,6 @@ public class DrawerActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
 
-
-        mMyLocation = location;
-
-//        location.distanceTo(new Location());
-
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
         if(!mInitialFocus) {
@@ -381,36 +365,47 @@ public class DrawerActivity extends AppCompatActivity
 
                 if(!key.equals(mUID)) {
                     mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_person_marker)).position(latLng).title(user.getName()).draggable(true))));
-                } else {
-                    mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
                 }
+//                else {
+//                    mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
+//                }
 
                 mAllUsers.put(key, user);
+                allChildrenAdded = false;
+
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                // TODO: Optimize the adding and changing of items to recyclerview. Shouldn't have to call new ListAdapter every time.
+                // Ideally, try getting the position of the user being changed from the adapter, using getter/setter.
+                // Once you have the position, just use notifyDataSetChanged
+                if(!allChildrenAdded) {
+                    allChildrenAdded = true;
+                    ArrayList<User> list = new ArrayList<>(mAllUsers.values());
+                    list.remove(mAllUsers.get(mUID));
+                    mAdapter = new UserListAdapter(list, DrawerActivity.this);
+                    mRecyclerView.setAdapter(mAdapter);
+                }
+
                 User user = dataSnapshot.getValue(User.class);
                 Log.d(user.getName() + ": ", user.getLatitude() + ", " + user.getLongitude());
 
                 LatLng latLng = new LatLng(user.getLatitude(), user.getLongitude());
                 String key = dataSnapshot.getKey();     // key is the user's UID
-//                if(mMarkers.get(key) != null) {
-//                    mMarkers.get(key).setPosition(latLng);
-//                } else if(!key.equals(mUID)) {
-//                    mMarkers.put(key, (mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_person_marker)).position(latLng).title(user.getName()).draggable(true))));
-//                } else {
-//                    mMarkers.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
-//                }
+
                 if(mUserMarkerMap.getMarker(key) != null) {
                     mUserMarkerMap.getMarker(key).setPosition(latLng);
                 } else if(!key.equals(mUID)) {
                     mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.blue_person_marker)).position(latLng).title(user.getName()).draggable(true))));
-                } else {
-                    mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
                 }
+//                else {
+//                    mUserMarkerMap.put(key, (mMap.addMarker(new MarkerOptions().position(latLng).title(user.getName()).draggable(true))));
+//                }
 
                 mAllUsers.put(key, user);
+
             }
 
             @Override
@@ -420,6 +415,9 @@ public class DrawerActivity extends AppCompatActivity
                 mUserMarkerMap.getMarker(key).remove();
                 mUserMarkerMap.remove(key);
                 mAllUsers.remove(key);
+                allChildrenAdded = false;
+//                mAdapter.notifyDataSetChanged();
+//                dataSetChanged();
             }
 
             @Override
@@ -453,7 +451,6 @@ public class DrawerActivity extends AppCompatActivity
 
         markerDialog.show(getSupportFragmentManager(), "missiles");
 
-        setRecyclerList();
 
         return true;
     }
@@ -473,13 +470,15 @@ public class DrawerActivity extends AppCompatActivity
     }
 
     private void setRecyclerList() {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         // use a linear layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        RecyclerView.Adapter adapter = new UserListAdapter(new ArrayList<User>(mAllUsers.values()), DrawerActivity.this);
-        recyclerView.setAdapter(adapter);
+        mRecyclerView.setLayoutManager(layoutManager);
     }
+
+//    @UiThread
+//    private void dataSetChanged() {
+//        mAdapter.notifyDataSetChanged();
+//    }
 
 }
