@@ -9,16 +9,26 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark" android:orientation="vertical"
     android:gravity="bottom">
 
-    <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@android:drawable/sym_def_app_icon" android:id="@+id/imageView" />
+    <!--<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"-->
+        <!--android:paddingTop="@dimen/nav_header_vertical_spacing"-->
+        <!--android:src="@android:drawable/sym_def_app_icon" android:id="@+id/imageView" />-->
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/nav_header_image"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:src="@android:drawable/ic_menu_info_details"
+        app:civ_border_width="2dp"
+        app:civ_border_color="#FF000000"/>
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:id="@+id/nav_header_user_name"
-        android:paddingTop="@dimen/nav_header_vertical_spacing" android:text="Name"
+        android:id="@+id/nav_header_user_name" android:text="Name"
+        android:layout_marginTop="7dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="Email" android:id="@+id/nav_header_email" />
+        android:text="Email" android:id="@+id/nav_header_email"
+        android:layout_marginBottom="0.7dp"/>
 
 </LinearLayout>

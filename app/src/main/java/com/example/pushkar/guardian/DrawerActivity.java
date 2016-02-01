@@ -44,6 +44,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
 import java.text.DecimalFormat;
@@ -51,6 +54,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import models.User;
 import models.UserMarkerMap;
 
@@ -112,6 +116,12 @@ public class DrawerActivity extends AppCompatActivity
         navHeaderName.setText(mSharedPrefs.getString("name", "DNE"));
         TextView navHeaderEmail = (TextView) findViewById(R.id.nav_header_email);
         navHeaderEmail.setText(mSharedPrefs.getString("email", "DNE"));
+
+        CircleImageView navHeaderImage = (CircleImageView) findViewById(R.id.nav_header_image);
+        String imageURL = mSharedPrefs.getString("imageURL", "DNE");
+        if(!imageURL.equals("DNE")) {
+            Picasso.with(this).load(imageURL).noFade().into(navHeaderImage);
+        }
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -450,7 +460,6 @@ public class DrawerActivity extends AppCompatActivity
         markerDialog.setArguments(bundle);
 
         markerDialog.show(getSupportFragmentManager(), "missiles");
-
 
         return true;
     }

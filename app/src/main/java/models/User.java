@@ -19,6 +19,8 @@ public class User implements Parcelable {
 
     private Integer stars;
 
+    private String imageURL;
+
     public User() {}
 
     public String getName() {
@@ -69,6 +71,14 @@ public class User implements Parcelable {
         this.stars = stars;
     }
 
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
     protected User(Parcel in) {
         name = in.readString();
         latitude = in.readByte() == 0x00 ? null : in.readDouble();
@@ -77,6 +87,7 @@ public class User implements Parcelable {
         loggedIn = loggedInVal == 0x02 ? null : loggedInVal != 0x00;
         email = in.readString();
         stars = in.readByte() == 0x00 ? null : in.readInt();
+        imageURL = in.readString();
     }
 
     @Override
@@ -111,6 +122,7 @@ public class User implements Parcelable {
             dest.writeByte((byte) (0x01));
             dest.writeInt(stars);
         }
+        dest.writeString(imageURL);
     }
 
     @SuppressWarnings("unused")

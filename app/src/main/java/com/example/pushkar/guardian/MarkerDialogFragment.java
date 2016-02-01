@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 import models.User;
 
 /**
@@ -36,6 +39,9 @@ public class MarkerDialogFragment extends DialogFragment {
 
         TextView dialogDistance = (TextView) view.findViewById(R.id.dialog_distance);
         dialogDistance.setText(distance + " miles away");
+
+        CircleImageView imageView = (CircleImageView) view.findViewById(R.id.profile_image);
+        Picasso.with(getActivity()).load(user.getImageURL()).noFade().into(imageView);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view)

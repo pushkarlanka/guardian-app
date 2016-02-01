@@ -54,10 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
         final Intent mapIntent = new Intent(MainActivity.this, DrawerActivity.class);
         String uid = mSharedPrefs.getString(sharedPrefsUIDKey, sharedPrefsDefVal);
-        Log.d("shared prefs loggedIn: ", mSharedPrefs.getBoolean("loggedIn", false) + "");
-        Log.d("shared prefs UID: ", uid);
-        Log.d("shared prefs NAME: ", mSharedPrefs.getString("name", "false"));
-        Log.d("shared prefs EMAIL: ", mSharedPrefs.getString("email", "false"));
+//        Log.d("shared prefs loggedIn: ", mSharedPrefs.getBoolean("loggedIn", false) + "");
+//        Log.d("shared prefs UID: ", uid);
+//        Log.d("shared prefs NAME: ", mSharedPrefs.getString("name", "false"));
+//        Log.d("shared prefs EMAIL: ", mSharedPrefs.getString("email", "false"));
 
         if(!uid.equals(sharedPrefsDefVal)) {
 //            AppBase appBase = ((AppBase) getApplicationContext());
@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     userDetailsMap.put("name", authData.getProviderData().get("displayName"));
                     userDetailsMap.put("loggedIn", true);
                     userDetailsMap.put("email", mEmail);
+                    userDetailsMap.put("imageURL", authData.getProviderData().get("profileImageURL"));
                 }
 
                 Firebase usersRef = new Firebase(fireBaseURL).child("users").child(authData.getUid());
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 //                appBase.setUserEmail(userDetailsMap.get("email").toString());
 
                 mSharedPrefs.edit().putString(sharedPrefsUIDKey, authData.getUid()).putString("name", userDetailsMap.get("name").toString()).
-                        putString("email", userDetailsMap.get("email").toString()).apply();
+                        putString("email", userDetailsMap.get("email").toString()).putString("imageURL", userDetailsMap.get("imageURL").toString()).apply();
 
                 startActivity(new Intent(MainActivity.this, DrawerActivity.class));
 //                startActivity(new Intent(MainActivity.this, MapsActivity.class));
