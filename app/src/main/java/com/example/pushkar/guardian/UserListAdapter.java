@@ -6,11 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import models.User;
 
 /**
@@ -31,12 +34,14 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         public TextView mUserName;
         public TextView mStars;
         public TextView mDistance;
+        public CircleImageView mImageView;
 
         public ViewHolder (View v) {
             super(v);
             mUserName = (TextView) v.findViewById(R.id.list_user_name);
             mStars = (TextView) v.findViewById(R.id.list_stars);
             mDistance = (TextView) v.findViewById(R.id.list_distance);
+            mImageView = (CircleImageView) v.findViewById(R.id.list_profile_image);
         }
     }
 
@@ -57,6 +62,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         holder.mStars.setText(String.valueOf(user.getStars()));
 
         holder.mDistance.setText(mDrawerActivity.getDistance(user) + " miles away");
+
+        Picasso.with(mDrawerActivity).load(user.getImageURL()).noFade().into(holder.mImageView);
     }
 
     @Override

@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:paddingTop="20dp"
-    android:paddingLeft="20dp"
+    android:paddingLeft="15dp"
     android:paddingRight="20dp">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/profile_image"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:src="@android:drawable/ic_delete"
-            app:civ_border_width="2dp"
-            app:civ_border_color="#FF000000"/>
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/profile_image"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:src="@android:drawable/ic_delete"
+        app:civ_border_width="2dp"
+        app:civ_border_color="#FF000000"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/profile_image"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="9dp"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
@@ -24,11 +31,12 @@
             android:textStyle="bold"
             android:textColor="@color/colorPrimary"
             android:textSize="25sp"
-            android:layout_marginBottom="-2dp"/>
+            android:layout_marginBottom="-5dp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
             android:orientation="horizontal">
 
             <TextView
@@ -38,12 +46,13 @@
                 android:id="@+id/dialog_stars"
                 android:text="50"
                 android:textColor="@color/colorPrimary"
-                android:textSize="25sp"
+                android:textSize="18sp"
                 android:layout_marginRight="2dp"/>
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
                 android:background="@android:drawable/btn_star_big_on"/>
 
         </LinearLayout>
@@ -52,19 +61,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/dialog_distance"
-            android:layout_marginTop="3dp"
             android:paddingLeft="2dp"
             android:text="0.5 miles away"
             android:textStyle="italic"/>
 
+    </LinearLayout>
 
-    
-        <!--<View-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="1dp"-->
-            <!--android:background="#FF3A8776"/>-->
-
-    <!--android:paddingStart="20dp"-->
-    <!--android:paddingEnd="20dp"-->
-
-</LinearLayout>
+</RelativeLayout>

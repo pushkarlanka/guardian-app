@@ -5,12 +5,13 @@
     android:layout_marginTop="5dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="5dp"
+    android:paddingBottom="7dp"
     card_view:cardCornerRadius="4dp">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="5dp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -31,51 +32,125 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:id="@+id/list_user_name"
-            android:text="John Doe"
-            android:textStyle="bold"
-            android:textColor="@color/colorPrimary"
-            android:textSize="25sp"
-            android:layout_marginBottom="-2dp"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="2dp"
-                android:id="@+id/list_stars"
-                android:text="50"
-                android:textColor="@color/colorPrimary"
-                android:textSize="20sp"
-                android:layout_marginRight="2dp"/>
-
-            <ImageView
-                android:layout_width="27dp"
-                android:layout_height="27dp"
-                android:background="@android:drawable/btn_star_big_on"/>
-
-        </LinearLayout>
-
         <!--<TextView-->
             <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="wrap_content"-->
-            <!--android:id="@+id/list_distance"-->
-            <!--android:layout_marginTop="3dp"-->
-            <!--android:paddingLeft="2dp"-->
-            <!--android:text="0.5 miles away"-->
-            <!--android:textStyle="italic"/>-->
+            <!--android:layout_marginLeft="10dp"-->
+            <!--android:layout_marginTop="5dp"-->
+            <!--android:id="@+id/list_user_name"-->
+            <!--android:text="John Doe"-->
+            <!--android:textStyle="bold"-->
+            <!--android:textColor="@color/colorPrimary"-->
+            <!--android:textSize="25sp"-->
+            <!--android:layout_marginBottom="-2dp"/>-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="10dp"-->
+            <!--android:orientation="horizontal">-->
+
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:paddingTop="2dp"-->
+                <!--android:id="@+id/list_stars"-->
+                <!--android:text="50"-->
+                <!--android:textColor="@color/colorPrimary"-->
+                <!--android:textSize="20sp"-->
+                <!--android:layout_marginRight="2dp"/>-->
+
+            <!--<ImageView-->
+                <!--android:layout_width="20dp"-->
+                <!--android:layout_height="20dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:background="@android:drawable/btn_star_big_on"/>-->
+
+        <!--</LinearLayout>-->
+
+        <!--&lt;!&ndash;<TextView&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:id="@+id/list_distance"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_marginTop="3dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:paddingLeft="2dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:text="0.5 miles away"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:textStyle="italic"/>&ndash;&gt;-->
+
+    <!--</LinearLayout>-->
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="10dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="20dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/list_profile_image"
+                android:layout_width="66dp"
+                android:layout_height="66dp"
+                android:src="@android:drawable/ic_delete"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#FF000000"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/list_profile_image"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="9dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/list_user_name"
+                    android:text="John Doe"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="25sp"
+                    android:layout_marginBottom="-5dp"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:id="@+id/list_stars"
+                        android:text="50"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:layout_marginRight="2dp"/>
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:background="@android:drawable/btn_star_big_on"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SEND REQUEST"
+            android:layout_marginLeft="230dp"
+            android:layout_marginTop="-6dp"
+            android:textColor="#FF3A8776"
+            android:textStyle="bold"/>
 
     </LinearLayout>
+
 
 </android.support.v7.widget.CardView>
 
